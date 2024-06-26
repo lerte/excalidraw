@@ -1,7 +1,7 @@
 {
   "productName": "Excalidraw",
-  "version": "0.0.0",
-  "identifier": "com.excaildraw.app",
+  "version": "0.0.1",
+  "identifier": "com.excalidraw.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,8 +12,9 @@
     "windows": [
       {
         "title": "Excalidraw",
-        "width": 800,
-        "height": 600
+        "height": 720,
+        "width": 1280,
+        "minWidth": 454
       }
     ],
     "security": {
@@ -29,6 +30,12 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "copyright": "Copyright © 2024 Lerte.",
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico"
+      }
+    }
   }
 }

@@ -1,7 +1,7 @@
 [package]
 name = "excalidraw"
 version = "0.0.0"
-description = "A Tauri App"
+description = "用于绘制手绘图表的虚拟白板"
 authors = ["you"]
 edition = "2021"
 
