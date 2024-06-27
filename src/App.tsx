@@ -1,7 +1,8 @@
-import { Excalidraw, MainMenu, WelcomeScreen } from "@excalidraw/excalidraw";
+import { Excalidraw, WelcomeScreen } from "../packages/excalidraw";
 import { useEffect, useState } from "react";
 
-import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import { AppMainMenu } from "./components/AppMainMenu";
+import { ExcalidrawImperativeAPI } from "../packages/excalidraw/types";
 
 const App = () => {
   // @ts-ignore
@@ -31,24 +32,12 @@ const App = () => {
           scrollToContent: true,
           appState: {
             theme: "dark",
+            currentItemFontFamily: 5,
           },
         }}
       >
         <WelcomeScreen />
-        <MainMenu>
-          <MainMenu.Group>
-            <MainMenu.DefaultItems.LoadScene />
-            <MainMenu.DefaultItems.Export />
-            <MainMenu.DefaultItems.SaveAsImage />
-            <MainMenu.DefaultItems.Help />
-            <MainMenu.DefaultItems.ClearCanvas />
-          </MainMenu.Group>
-          <MainMenu.Separator />
-          <MainMenu.Group>
-            <MainMenu.DefaultItems.ToggleTheme />
-            <MainMenu.DefaultItems.ChangeCanvasBackground />
-          </MainMenu.Group>
-        </MainMenu>
+        <AppMainMenu />
       </Excalidraw>
     </div>
   );

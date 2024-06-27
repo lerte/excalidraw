@@ -1,4 +1,4 @@
-import { ResolvablePromise } from "@excalidraw/excalidraw/types/utils";
+import { ResolvablePromise } from "../packages/excalidraw/utils";
 import { unstable_batchedUpdates } from "react-dom";
 
 export const throttleRAF = <T extends any[]>(

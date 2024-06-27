@@ -36,6 +36,26 @@
       "nsis": {
         "installerIcon": "icons/icon.ico"
       }
-    }
+    },
+    "fileAssociations": [
+      {
+        "ext": ["excalidraw"]
+      },
+      {
+        "ext": ["excalidrawlib"]
+      },
+      {
+        "ext": ["svg"],
+        "mimeType": "image/svg"
+      },
+      {
+        "ext": ["png"],
+        "mimeType": "image/png"
+      },
+      {
+        "ext": ["jpg", "jpeg"],
+        "mimeType": "image/jpeg"
+      }
+    ]
   }
 }

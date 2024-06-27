@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "XiaolaiSC";
-  src: url("fonts/XiaolaiSC-Regular.ttf");
-}
-
-.app .excalidraw {
-  --ui-font: XiaolaiSC, system-ui, BlinkMacSystemFont, -apple-system, Segoe UI,
-    Roboto, Helvetica, Arial, sans-serif;
-}
-
 body,
 html {
   margin: 0;
@@ -20,6 +10,6 @@ html {
   height: 100%;
   overflow: hidden;
 }
-.excalidraw {
-  --color-primary-contrast-offset: #625ee0;
-}
+// .excalidraw {
+//   --color-primary-contrast-offset: #625ee0;
+// }
