@@ -1,6 +1,6 @@
 {
   "productName": "Excalidraw",
-  "version": "0.0.1",
+  "version": "../package.json",
   "identifier": "com.excalidraw.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
