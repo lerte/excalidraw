@@ -1,24 +1,3 @@
-import {
-  compressData,
-  decompressData,
-} from "../../packages/excalidraw/data/encode";
-import {
-  decryptData,
-  generateEncryptionKey,
-  IV_LENGTH_BYTES,
-} from "../../packages/excalidraw/data/encryption";
-import { serializeAsJSON } from "../../packages/excalidraw/data/json";
-import { restore } from "../../packages/excalidraw/data/restore";
-import type { ImportedDataState } from "../../packages/excalidraw/data/types";
-import type { SceneBounds } from "../../packages/excalidraw/element/bounds";
-import { isInvisiblySmallElement } from "../../packages/excalidraw/element/sizeHelpers";
-import { isInitializedImageElement } from "../../packages/excalidraw/element/typeChecks";
-import type {
-  ExcalidrawElement,
-  FileId,
-  OrderedExcalidrawElement,
-} from "../../packages/excalidraw/element/types";
-import { t } from "../../packages/excalidraw/i18n";
 import type {
   AppState,
   BinaryFileData,
@@ -26,22 +5,43 @@ import type {
   SocketId,
   UserIdleState,
 } from "../../packages/excalidraw/types";
-import type { MakeBrand } from "../../packages/excalidraw/utility-types";
-import { bytesToHexString } from "../../packages/excalidraw/utils";
-import type { WS_SUBTYPES } from "../app_constants";
 import {
   DELETED_ELEMENT_TIMEOUT,
   FILE_UPLOAD_MAX_BYTES,
   ROOM_ID_BYTES,
 } from "../app_constants";
+import type {
+  ExcalidrawElement,
+  FileId,
+  OrderedExcalidrawElement,
+} from "../../packages/excalidraw/element/types";
+import {
+  IV_LENGTH_BYTES,
+  decryptData,
+  generateEncryptionKey,
+} from "../../packages/excalidraw/data/encryption";
+import {
+  compressData,
+  decompressData,
+} from "../../packages/excalidraw/data/encode";
+
+import type { ImportedDataState } from "../../packages/excalidraw/data/types";
+import type { MakeBrand } from "../../packages/excalidraw/utility-types";
+import type { SceneBounds } from "../../packages/excalidraw/element/bounds";
+import type { WS_SUBTYPES } from "../app_constants";
+import { bytesToHexString } from "../../packages/excalidraw/utils";
 import { encodeFilesForUpload } from "./FileManager";
-import { saveFilesToFirebase } from "./firebase";
+import { isInitializedImageElement } from "../../packages/excalidraw/element/typeChecks";
+import { isInvisiblySmallElement } from "../../packages/excalidraw/element/sizeHelpers";
+import { restore } from "../../packages/excalidraw/data/restore";
+import { serializeAsJSON } from "../../packages/excalidraw/data/json";
+import { t } from "../../packages/excalidraw/i18n";
 
 export type SyncableExcalidrawElement = OrderedExcalidrawElement &
   MakeBrand<"SyncableExcalidrawElement">;
 
 export const isSyncableElement = (
-  element: OrderedExcalidrawElement,
+  element: OrderedExcalidrawElement
 ): element is SyncableExcalidrawElement => {
   if (element.isDeleted) {
     if (element.updated > Date.now() - DELETED_ELEMENT_TIMEOUT) {
@@ -53,10 +53,10 @@ export const isSyncableElement = (
 };
 
 export const getSyncableElements = (
-  elements: readonly OrderedExcalidrawElement[],
+  elements: readonly OrderedExcalidrawElement[]
 ) =>
   elements.filter((element) =>
-    isSyncableElement(element),
+    isSyncableElement(element)
   ) as SyncableExcalidrawElement[];
 
 const BACKEND_V2_GET = import.meta.env.VITE_APP_BACKEND_V2_GET_URL;
@@ -186,7 +186,7 @@ const legacy_decodeFromBackend = async ({
 
   // We need to convert the decrypted array buffer to a string
   const string = new window.TextDecoder("utf-8").decode(
-    new Uint8Array(decrypted),
+    new Uint8Array(decrypted)
   );
   const data: ImportedDataState = JSON.parse(string);
 
@@ -198,7 +198,7 @@ const legacy_decodeFromBackend = async ({
 
 const importFromBackend = async (
   id: string,
-  decryptionKey: string,
+  decryptionKey: string
 ): Promise<ImportedDataState> => {
   try {
     const response = await fetch(`${BACKEND_V2_GET}${id}`);
@@ -214,10 +214,10 @@ const importFromBackend = async (
         new Uint8Array(buffer),
         {
           decryptionKey,
-        },
+        }
       );
       const data: ImportedDataState = JSON.parse(
-        new TextDecoder().decode(decodedBuffer),
+        new TextDecoder().decode(decodedBuffer)
       );
 
       return {
@@ -227,7 +227,7 @@ const importFromBackend = async (
     } catch (error: any) {
       console.warn(
         "error when decoding shareLink data using the new format:",
-        error,
+        error
       );
       return legacy_decodeFromBackend({ buffer, decryptionKey });
     }
@@ -244,7 +244,7 @@ export const loadScene = async (
   // Supply local state even if importing from backend to ensure we restore
   // localStorage user settings which we do not persist on server.
   // Non-optional so we don't forget to pass it even if `undefined`.
-  localDataState: ImportedDataState | undefined | null,
+  localDataState: ImportedDataState | undefined | null
 ) => {
   let data;
   if (id != null && privateKey != null) {
@@ -254,7 +254,7 @@ export const loadScene = async (
       await importFromBackend(id, privateKey),
       localDataState?.appState,
       localDataState?.elements,
-      { repairBindings: true, refreshDimensions: false },
+      { repairBindings: true, refreshDimensions: false }
     );
   } else {
     data = restore(localDataState || null, null, null, {
@@ -279,15 +279,15 @@ type ExportToBackendResult =
 export const exportToBackend = async (
   elements: readonly ExcalidrawElement[],
   appState: Partial<AppState>,
-  files: BinaryFiles,
+  files: BinaryFiles
 ): Promise<ExportToBackendResult> => {
   const encryptionKey = await generateEncryptionKey("string");
 
   const payload = await compressData(
     new TextEncoder().encode(
-      serializeAsJSON(elements, appState, files, "database"),
+      serializeAsJSON(elements, appState, files, "database")
     ),
-    { encryptionKey },
+    { encryptionKey }
   );
 
   try {
@@ -316,10 +316,7 @@ export const exportToBackend = async (
       url.hash = `json=${json.id},${encryptionKey}`;
       const urlString = url.toString();
 
-      await saveFilesToFirebase({
-        prefix: `/files/shareLinks/${json.id}`,
-        files: filesToUpload,
-      });
+      console.log(filesToUpload);
 
       return { url: urlString, errorMessage: null };
     } else if (json.error_class === "RequestTooLargeError") {
