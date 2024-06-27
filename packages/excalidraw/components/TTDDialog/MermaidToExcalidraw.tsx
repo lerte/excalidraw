@@ -1,25 +1,27 @@
-import { useState, useRef, useEffect, useDeferredValue } from "react";
-import type { BinaryFiles } from "../../types";
-import { useApp } from "../App";
-import type { NonDeletedExcalidrawElement } from "../../element/types";
-import { ArrowRightIcon } from "../icons";
 import "./MermaidToExcalidraw.scss";
-import { t } from "../../i18n";
-import Trans from "../Trans";
-import type { MermaidToExcalidrawLibProps } from "./common";
+
 import {
   convertMermaidToExcalidraw,
   insertToEditor,
   saveMermaidDataToStorage,
 } from "./common";
-import { TTDDialogPanels } from "./TTDDialogPanels";
-import { TTDDialogPanel } from "./TTDDialogPanel";
+import { debounce, isDevEnv } from "../../utils";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
+
+import { ArrowRightIcon } from "../icons";
+import type { BinaryFiles } from "../../types";
+import { EDITOR_LS_KEYS } from "../../constants";
+import { EditorLocalStorage } from "../../data/EditorLocalStorage";
+import type { MermaidToExcalidrawLibProps } from "./common";
+import type { NonDeletedExcalidrawElement } from "../../element/types";
 import { TTDDialogInput } from "./TTDDialogInput";
 import { TTDDialogOutput } from "./TTDDialogOutput";
-import { EditorLocalStorage } from "../../data/EditorLocalStorage";
-import { EDITOR_LS_KEYS } from "../../constants";
-import { debounce, isDevEnv } from "../../utils";
+import { TTDDialogPanel } from "./TTDDialogPanel";
+import { TTDDialogPanels } from "./TTDDialogPanels";
 import { TTDDialogSubmitShortcut } from "./TTDDialogSubmitShortcut";
+import Trans from "../Trans";
+import { t } from "../../i18n";
+import { useApp } from "../App";
 
 const MERMAID_EXAMPLE =
   "flowchart TD\n A[Christmas] -->|Get money| B(Go shopping)\n B --> C{Let me think}\n C -->|One| D[Laptop]\n C -->|Two| E[iPhone]\n C -->|Three| F[Car]";
@@ -34,7 +36,7 @@ const MermaidToExcalidraw = ({
   const [text, setText] = useState(
     () =>
       EditorLocalStorage.get<string>(EDITOR_LS_KEYS.MERMAID_TO_EXCALIDRAW) ||
-      MERMAID_EXAMPLE,
+      MERMAID_EXAMPLE
   );
   const deferredText = useDeferredValue(text.trim());
   const [error, setError] = useState<Error | null>(null);
@@ -67,7 +69,7 @@ const MermaidToExcalidraw = ({
     () => () => {
       debouncedSaveMermaidDefinition.flush();
     },
-    [],
+    []
   );
 
   const onInsertToEditor = () => {
@@ -85,15 +87,28 @@ const MermaidToExcalidraw = ({
         <Trans
           i18nKey="mermaid.description"
           flowchartLink={(el) => (
-            <a href="https://mermaid.js.org/syntax/flowchart.html">{el}</a>
+            <a
+              target="_blank"
+              href="https://mermaid.js.org/syntax/flowchart.html"
+            >
+              {el}
+            </a>
           )}
           sequenceLink={(el) => (
-            <a href="https://mermaid.js.org/syntax/sequenceDiagram.html">
+            <a
+              target="_blank"
+              href="https://mermaid.js.org/syntax/sequenceDiagram.html"
+            >
               {el}
             </a>
           )}
           classLink={(el) => (
-            <a href="https://mermaid.js.org/syntax/classDiagram.html">{el}</a>
+            <a
+              target="_blank"
+              href="https://mermaid.js.org/syntax/classDiagram.html"
+            >
+              {el}
+            </a>
           )}
         />
       </div>
