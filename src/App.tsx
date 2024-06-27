@@ -1,8 +1,13 @@
 import { Excalidraw, WelcomeScreen } from "../packages/excalidraw";
+import {
+  ExcalidrawImperativeAPI,
+  UIAppState,
+} from "../packages/excalidraw/types";
 import { useEffect, useState } from "react";
 
 import { AppMainMenu } from "./components/AppMainMenu";
-import { ExcalidrawImperativeAPI } from "../packages/excalidraw/types";
+import CustomStats from "./CustomStats.tsx";
+import { NonDeletedExcalidrawElement } from "../packages/excalidraw/element/types";
 
 const App = () => {
   // @ts-ignore
@@ -22,17 +27,30 @@ const App = () => {
     }
   }, [excalidrawAPI]);
 
+  const renderCustomStats = (
+    elements: readonly NonDeletedExcalidrawElement[],
+    appState: UIAppState
+  ) => {
+    return (
+      <CustomStats
+        setToast={(message: string) => excalidrawAPI!.setToast({ message })}
+        appState={appState}
+        elements={elements}
+      />
+    );
+  };
+
   return (
     <div className="app h-full">
       <Excalidraw
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
-        gridModeEnabled
         langCode="zh-CN"
+        renderCustomStats={renderCustomStats}
         initialData={{
           scrollToContent: true,
           appState: {
             theme: "dark",
-            currentItemFontFamily: 5,
+            currentItemFontFamily: 5, // 中文手写 小赖字体
           },
         }}
       >
