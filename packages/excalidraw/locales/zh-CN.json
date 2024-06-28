@@ -430,6 +430,8 @@
     "storage": "存储",
     "fullTitle": "详细统计信息",
     "title": "详细统计信息",
+    "generalStats": "一般统计数据",
+    "elementProperties": "元素属性",
     "total": "总计",
     "version": "版本",
     "versionCopy": "点击复制",
