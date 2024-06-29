@@ -1,23 +1,25 @@
-import type {
-  ExcalidrawElement,
-  NonDeletedExcalidrawElement,
-} from "./element/types";
-import type { BinaryFiles } from "./types";
-import type { Spreadsheet } from "./charts";
-import { tryParseSpreadsheet, VALID_SPREADSHEET } from "./charts";
 import {
   ALLOWED_PASTE_MIME_TYPES,
   EXPORT_DATA_TYPES,
   MIME_TYPES,
 } from "./constants";
+import type {
+  ExcalidrawElement,
+  NonDeletedExcalidrawElement,
+} from "./element/types";
+import { VALID_SPREADSHEET, tryParseSpreadsheet } from "./charts";
+import { arrayToMap, isMemberOf, isPromiseLike } from "./utils";
 import {
   isFrameLikeElement,
   isInitializedImageElement,
 } from "./element/typeChecks";
+
+import type { BinaryFiles } from "./types";
+import type { Spreadsheet } from "./charts";
 import { deepCopyElement } from "./element/newElement";
-import { mutateElement } from "./element/mutateElement";
 import { getContainingFrame } from "./frame";
-import { arrayToMap, isMemberOf, isPromiseLike } from "./utils";
+import { mutateElement } from "./element/mutateElement";
+import svgToEx from "svg-to-excalidraw";
 
 type ElementsClipboard = {
   type: typeof EXPORT_DATA_TYPES.excalidrawClipboard;
@@ -37,7 +39,7 @@ export interface ClipboardData {
   programmaticAPI?: boolean;
 }
 
-type AllowedPasteMimeTypes = typeof ALLOWED_PASTE_MIME_TYPES[number];
+type AllowedPasteMimeTypes = (typeof ALLOWED_PASTE_MIME_TYPES)[number];
 
 type ParsedClipboardEvent =
   | { type: "text"; value: string }
@@ -56,7 +58,7 @@ export const probablySupportsClipboardBlob =
   "toBlob" in HTMLCanvasElement.prototype;
 
 const clipboardContainsElements = (
-  contents: any,
+  contents: any
 ): contents is { elements: ExcalidrawElement[]; files?: BinaryFiles } => {
   if (
     [
@@ -107,7 +109,7 @@ export const createPasteEvent = ({
         event.clipboardData?.items.add(file);
         if (event.clipboardData?.files[idx] !== file) {
           throw new Error(
-            `Failed to set file "${file.name}" as clipboardData item`,
+            `Failed to set file "${file.name}" as clipboardData item`
           );
         }
       } catch (error: any) {
@@ -128,7 +130,7 @@ export const serializeAsClipboardJSON = ({
 }) => {
   const elementsMap = arrayToMap(elements);
   const framesToCopy = new Set(
-    elements.filter((element) => isFrameLikeElement(element)),
+    elements.filter((element) => isFrameLikeElement(element))
   );
   let foundFile = false;
 
@@ -144,7 +146,7 @@ export const serializeAsClipboardJSON = ({
 
   if (foundFile && !files) {
     console.warn(
-      "copyToClipboard: attempting to file element(s) without providing associated `files` object.",
+      "copyToClipboard: attempting to file element(s) without providing associated `files` object."
     );
   }
 
@@ -175,16 +177,16 @@ export const copyToClipboard = async (
   elements: readonly NonDeletedExcalidrawElement[],
   files: BinaryFiles | null,
   /** supply if available to make the operation more certain to succeed */
-  clipboardEvent?: ClipboardEvent | null,
+  clipboardEvent?: ClipboardEvent | null
 ) => {
   await copyTextToSystemClipboard(
     serializeAsClipboardJSON({ elements, files }),
-    clipboardEvent,
+    clipboardEvent
   );
 };
 
 const parsePotentialSpreadsheet = (
-  text: string,
+  text: string
 ): { spreadsheet: Spreadsheet } | { errorMessage: string } | null => {
   const result = tryParseSpreadsheet(text);
   if (result.type === VALID_SPREADSHEET) {
@@ -215,7 +217,7 @@ function parseHTMLTree(el: ChildNode) {
 }
 
 const maybeParseHTMLPaste = (
-  event: ClipboardEvent,
+  event: ClipboardEvent
 ): { type: "mixedContent"; value: PastedMixedContent } | null => {
   const html = event.clipboardData?.getData("text/html");
 
@@ -249,7 +251,7 @@ export const readSystemClipboard = async () => {
     // @ts-ignore
     if (navigator.clipboard?.read) {
       console.warn(
-        `navigator.clipboard.readText() failed (${error.message}). Failling back to navigator.clipboard.read()`,
+        `navigator.clipboard.readText() failed (${error.message}). Failling back to navigator.clipboard.read()`
       );
     } else {
       throw error;
@@ -263,7 +265,7 @@ export const readSystemClipboard = async () => {
   } catch (error: any) {
     if (error.name === "DataError") {
       console.warn(
-        `navigator.clipboard.read() error, clipboard is probably empty: ${error.message}`,
+        `navigator.clipboard.read() error, clipboard is probably empty: ${error.message}`
       );
       return types;
     }
@@ -279,7 +281,7 @@ export const readSystemClipboard = async () => {
         types[type] = await (await item.getType(type)).text();
       } catch (error: any) {
         console.warn(
-          `Cannot retrieve ${type} from clipboardItem: ${error.message}`,
+          `Cannot retrieve ${type} from clipboardItem: ${error.message}`
         );
       }
     }
@@ -298,7 +300,7 @@ export const readSystemClipboard = async () => {
  */
 const parseClipboardEvent = async (
   event: ClipboardEvent,
-  isPlainPaste = false,
+  isPlainPaste = false
 ): Promise<ParsedClipboardEvent> => {
   try {
     const mixedContent = !isPlainPaste && event && maybeParseHTMLPaste(event);
@@ -319,7 +321,14 @@ const parseClipboardEvent = async (
       return mixedContent;
     }
 
-    const text = event.clipboardData?.getData("text/plain");
+    const text = event.clipboardData?.getData("text/plain").trim();
+    // 如果是svg字符串
+    if (text?.startsWith("<svg") && text?.endsWith("</svg>")) {
+      const { hasErrors, content } = svgToEx.convert(text);
+      if (!hasErrors) {
+        return { type: "text", value: JSON.stringify(content) };
+      }
+    }
 
     return { type: "text", value: (text || "").trim() };
   } catch {
@@ -332,7 +341,7 @@ const parseClipboardEvent = async (
  */
 export const parseClipboard = async (
   event: ClipboardEvent,
-  isPlainPaste = false,
+  isPlainPaste = false
 ): Promise<ClipboardData> => {
   const parsedEventData = await parseClipboardEvent(event, isPlainPaste);
 
@@ -406,7 +415,7 @@ export const copyBlobToClipboardAsPng = async (blob: Blob | Promise<Blob>) => {
 
 export const copyTextToSystemClipboard = async (
   text: string | null,
-  clipboardEvent?: ClipboardEvent | null,
+  clipboardEvent?: ClipboardEvent | null
 ) => {
   // (1) first try using Async Clipboard API
   if (probablySupportsClipboardWriteText) {

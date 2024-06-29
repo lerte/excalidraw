@@ -542,6 +542,7 @@ class App extends React.Component<AppProps, AppState> {
 
   public scene: Scene;
   public renderer: Renderer;
+  // @ts-ignore
   private fonts: Fonts;
   private resizeObserver: ResizeObserver | undefined;
   public library: AppClassProperties["library"];
@@ -549,6 +550,7 @@ class App extends React.Component<AppProps, AppState> {
   public id: string;
   private store: Store;
   private history: History;
+  // @ts-ignore
   private excalidrawContainerValue: {
     container: HTMLDivElement | null;
     id: string;
@@ -638,6 +640,7 @@ class App extends React.Component<AppProps, AppState> {
     super(props);
     const defaultAppState = getDefaultAppState();
     const {
+      getApp,
       excalidrawAPI,
       viewModeEnabled = false,
       zenModeEnabled = false,
@@ -731,6 +734,8 @@ class App extends React.Component<AppProps, AppState> {
     this.actionManager.registerAction(
       createRedoAction(this.history, this.store)
     );
+
+    getApp?.(this);
   }
 
   private onWindowMessage(event: MessageEvent) {
@@ -2947,6 +2952,7 @@ class App extends React.Component<AppProps, AppState> {
 
   public pasteFromClipboard = withBatchedUpdates(
     async (event: ClipboardEvent) => {
+      console.log("从剪切板粘贴", event);
       const isPlainPaste = !!IS_PLAIN_PASTE;
 
       // #686
@@ -2982,6 +2988,7 @@ class App extends React.Component<AppProps, AppState> {
       // (something something security)
       let file = event?.clipboardData?.files[0];
       const data = await parseClipboard(event, isPlainPaste);
+
       if (!file && !isPlainPaste) {
         if (data.mixedContent) {
           return this.addElementsFromMixedContentPaste(data.mixedContent, {

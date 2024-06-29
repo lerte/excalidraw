@@ -5,13 +5,16 @@ import {
 } from "../packages/excalidraw/types";
 import { useEffect, useState } from "react";
 
+import App from "../packages/excalidraw/components/App";
 import { AppMainMenu } from "./components/AppMainMenu";
 import CustomStats from "./CustomStats.tsx";
 import { NonDeletedExcalidrawElement } from "../packages/excalidraw/element/types";
+import { createPasteEvent } from "../packages/excalidraw/clipboard.ts";
 import { listen } from "@tauri-apps/api/event";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 
-const App = () => {
+const ExcalidrawApp = () => {
+  const [app, setApp] = useState<App>();
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
 
   const disableContextMenuAfterBundle = () => {
@@ -51,6 +54,14 @@ const App = () => {
       listen<Payload>("tauri://drop", (event) => {
         const { paths } = event.payload;
         paths.map(async (path) => {
+          // 如果扩展名是.svg,先使用svg-to-excalidraw转换成excalidraw element格式
+          if (path.endsWith(".svg")) {
+            const text = await readTextFile(path);
+            const types = {
+              "text/plain": text,
+            };
+            app?.pasteFromClipboard(createPasteEvent({ types }));
+          }
           // 如果扩展名是.excalidraw (Excalidraw保存的文件格式)
           if (path.endsWith(".excalidraw")) {
             const content = await readTextFile(path);
@@ -74,9 +85,11 @@ const App = () => {
   return (
     <div className="app h-full">
       <Excalidraw
+        getApp={(app) => setApp(app)}
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
         langCode="zh-CN"
         renderCustomStats={renderCustomStats}
+        aiEnabled={false}
         initialData={{
           scrollToContent: true,
           appState: {
@@ -92,4 +105,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default ExcalidrawApp;

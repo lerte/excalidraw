@@ -1,46 +1,47 @@
-import type React from "react";
 import type {
-  PointerType,
-  ExcalidrawLinearElement,
-  NonDeletedExcalidrawElement,
-  NonDeleted,
-  TextAlign,
-  ExcalidrawElement,
-  GroupId,
-  ExcalidrawBindableElement,
   Arrowhead,
   ChartType,
-  FontFamilyValues,
-  FileId,
-  ExcalidrawImageElement,
-  Theme,
-  StrokeRoundness,
-  ExcalidrawEmbeddableElement,
-  ExcalidrawMagicFrameElement,
-  ExcalidrawFrameLikeElement,
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
   ExcalidrawElementType,
+  ExcalidrawEmbeddableElement,
+  ExcalidrawFrameLikeElement,
   ExcalidrawIframeLikeElement,
+  ExcalidrawImageElement,
+  ExcalidrawLinearElement,
+  ExcalidrawMagicFrameElement,
+  FileId,
+  FontFamilyValues,
+  GroupId,
+  NonDeleted,
+  NonDeletedExcalidrawElement,
   OrderedExcalidrawElement,
+  PointerType,
+  StrokeRoundness,
+  TextAlign,
+  Theme,
 } from "./element/types";
-import type { Action } from "./actions/types";
-import type { Point as RoughPoint } from "roughjs/bin/geometry";
-import type { LinearElementEditor } from "./element/linearElementEditor";
-import type { SuggestedBinding } from "./element/binding";
-import type { ImportedDataState } from "./data/types";
-import type App from "./components/App";
-import type { throttleRAF } from "./utils";
-import type { Spreadsheet } from "./charts";
-import type { Language } from "./i18n";
-import type { ClipboardData } from "./clipboard";
-import type { isOverScrollBars } from "./scene/scrollbars";
-import type { MaybeTransformHandleType } from "./element/transformHandles";
-import type Library from "./data/library";
-import type { FileSystemHandle } from "./data/filesystem";
 import type { IMAGE_MIME_TYPES, MIME_TYPES } from "./constants";
+import type { MaybePromise, Merge, ValueOf } from "./utility-types";
+
+import type { Action } from "./actions/types";
+import type App from "./components/App";
+import type { ClipboardData } from "./clipboard";
 import type { ContextMenuItems } from "./components/ContextMenu";
+import type { FileSystemHandle } from "./data/filesystem";
+import type { ImportedDataState } from "./data/types";
+import type { Language } from "./i18n";
+import type Library from "./data/library";
+import type { LinearElementEditor } from "./element/linearElementEditor";
+import type { MaybeTransformHandleType } from "./element/transformHandles";
+import type React from "react";
+import type { Point as RoughPoint } from "roughjs/bin/geometry";
 import type { SnapLine } from "./snapping";
-import type { Merge, MaybePromise, ValueOf } from "./utility-types";
+import type { Spreadsheet } from "./charts";
 import type { StoreActionType } from "./store";
+import type { SuggestedBinding } from "./element/binding";
+import type { isOverScrollBars } from "./scene/scrollbars";
+import type { throttleRAF } from "./utils";
 
 export type Point = Readonly<RoughPoint>;
 
@@ -421,7 +422,7 @@ export type LibraryItems_anyVersion = LibraryItems | LibraryItems_v1;
 
 export type LibraryItemsSource =
   | ((
-      currentLibraryItems: LibraryItems,
+      currentLibraryItems: LibraryItems
     ) => MaybePromise<LibraryItems_anyVersion | Blob>)
   | MaybePromise<LibraryItems_anyVersion | Blob>;
 // -----------------------------------------------------------------------------
@@ -439,10 +440,11 @@ export type OnUserFollowedPayload = {
 };
 
 export interface ExcalidrawProps {
+  getApp?: (app: App) => void;
   onChange?: (
     elements: readonly OrderedExcalidrawElement[],
     appState: AppState,
-    files: BinaryFiles,
+    files: BinaryFiles
   ) => void;
   initialData?:
     | (() => MaybePromise<ExcalidrawInitialDataState | null>)
@@ -456,11 +458,11 @@ export interface ExcalidrawProps {
   }) => void;
   onPaste?: (
     data: ClipboardData,
-    event: ClipboardEvent | null,
+    event: ClipboardEvent | null
   ) => Promise<boolean> | boolean;
   renderTopRightUI?: (
     isMobile: boolean,
-    appState: UIAppState,
+    appState: UIAppState
   ) => JSX.Element | null;
   langCode?: Language["code"];
   viewModeEnabled?: boolean;
@@ -473,7 +475,7 @@ export interface ExcalidrawProps {
   name?: string;
   renderCustomStats?: (
     elements: readonly NonDeletedExcalidrawElement[],
-    appState: UIAppState,
+    appState: UIAppState
   ) => JSX.Element;
   UIOptions?: Partial<UIOptions>;
   detectScroll?: boolean;
@@ -485,15 +487,15 @@ export interface ExcalidrawProps {
     element: NonDeletedExcalidrawElement,
     event: CustomEvent<{
       nativeEvent: MouseEvent | React.PointerEvent<HTMLCanvasElement>;
-    }>,
+    }>
   ) => void;
   onPointerDown?: (
     activeTool: AppState["activeTool"],
-    pointerDownState: PointerDownState,
+    pointerDownState: PointerDownState
   ) => void;
   onPointerUp?: (
     activeTool: AppState["activeTool"],
-    pointerDownState: PointerDownState,
+    pointerDownState: PointerDownState
   ) => void;
   onScrollChange?: (scrollX: number, scrollY: number, zoom: Zoom) => void;
   onUserFollow?: (payload: OnUserFollowedPayload) => void;
@@ -506,7 +508,7 @@ export interface ExcalidrawProps {
     | ((link: string) => boolean | undefined);
   renderEmbeddable?: (
     element: NonDeleted<ExcalidrawEmbeddableElement>,
-    appState: AppState,
+    appState: AppState
   ) => JSX.Element | null;
   aiEnabled?: boolean;
 }
@@ -529,13 +531,13 @@ export type ExportOpts = {
   onExportToBackend?: (
     exportedElements: readonly NonDeletedExcalidrawElement[],
     appState: UIAppState,
-    files: BinaryFiles,
+    files: BinaryFiles
   ) => void;
   renderCustomUI?: (
     exportedElements: readonly NonDeletedExcalidrawElement[],
     appState: UIAppState,
     files: BinaryFiles,
-    canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement
   ) => JSX.Element;
 };
 
@@ -714,28 +716,28 @@ export interface ExcalidrawImperativeAPI {
     callback: (
       elements: readonly ExcalidrawElement[],
       appState: AppState,
-      files: BinaryFiles,
-    ) => void,
+      files: BinaryFiles
+    ) => void
   ) => UnsubscribeCallback;
   onPointerDown: (
     callback: (
       activeTool: AppState["activeTool"],
       pointerDownState: PointerDownState,
-      event: React.PointerEvent<HTMLElement>,
-    ) => void,
+      event: React.PointerEvent<HTMLElement>
+    ) => void
   ) => UnsubscribeCallback;
   onPointerUp: (
     callback: (
       activeTool: AppState["activeTool"],
       pointerDownState: PointerDownState,
-      event: PointerEvent,
-    ) => void,
+      event: PointerEvent
+    ) => void
   ) => UnsubscribeCallback;
   onScrollChange: (
-    callback: (scrollX: number, scrollY: number, zoom: Zoom) => void,
+    callback: (scrollX: number, scrollY: number, zoom: Zoom) => void
   ) => UnsubscribeCallback;
   onUserFollow: (
-    callback: (payload: OnUserFollowedPayload) => void,
+    callback: (payload: OnUserFollowedPayload) => void
   ) => UnsubscribeCallback;
 }
 
@@ -761,7 +763,7 @@ export type FrameNameBounds = {
 
 export type FrameNameBoundsCache = {
   get: (
-    frameElement: ExcalidrawFrameLikeElement | ExcalidrawMagicFrameElement,
+    frameElement: ExcalidrawFrameLikeElement | ExcalidrawMagicFrameElement
   ) => FrameNameBounds | null;
   _cache: Map<
     string,

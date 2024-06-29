@@ -1,27 +1,28 @@
-import React, { useEffect } from "react";
-import { InitializeApp } from "./components/InitializeApp";
-import App from "./components/App";
-import { isShallowEqual } from "./utils";
-
 import "./css/app.scss";
 import "./css/styles.scss";
 import "../../public/fonts/fonts.css";
-import polyfill from "./polyfill";
 
 import type { AppProps, ExcalidrawProps } from "./types";
-import { defaultLang } from "./i18n";
-import { DEFAULT_UI_OPTIONS } from "./constants";
-import { Provider } from "jotai";
+import React, { useEffect } from "react";
 import { jotaiScope, jotaiStore } from "./jotai";
+
+import App from "./components/App";
+import { DEFAULT_UI_OPTIONS } from "./constants";
 import Footer from "./components/footer/FooterCenter";
-import MainMenu from "./components/main-menu/MainMenu";
-import WelcomeScreen from "./components/welcome-screen/WelcomeScreen";
+import { InitializeApp } from "./components/InitializeApp";
 import LiveCollaborationTrigger from "./components/live-collaboration/LiveCollaborationTrigger";
+import MainMenu from "./components/main-menu/MainMenu";
+import { Provider } from "jotai";
+import WelcomeScreen from "./components/welcome-screen/WelcomeScreen";
+import { defaultLang } from "./i18n";
+import { isShallowEqual } from "./utils";
+import polyfill from "./polyfill";
 
 polyfill();
 
 const ExcalidrawBase = (props: ExcalidrawProps) => {
   const {
+    getApp,
     onChange,
     initialData,
     excalidrawAPI,
@@ -106,9 +107,16 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
   }, []);
 
   return (
-    <Provider unstable_createStore={() => jotaiStore} scope={jotaiScope}>
-      <InitializeApp langCode={langCode} theme={theme}>
+    <Provider
+      unstable_createStore={() => jotaiStore}
+      scope={jotaiScope}
+    >
+      <InitializeApp
+        langCode={langCode}
+        theme={theme}
+      >
         <App
+          getApp={getApp}
           onChange={onChange}
           initialData={initialData}
           excalidrawAPI={excalidrawAPI}
@@ -177,7 +185,7 @@ const areEqual = (prevProps: ExcalidrawProps, nextProps: ExcalidrawProps) => {
   const isUIOptionsSame = prevUIOptionsKeys.every((key) => {
     if (key === "canvasActions") {
       const canvasOptionKeys = Object.keys(
-        prevUIOptions.canvasActions!,
+        prevUIOptions.canvasActions!
       ) as (keyof Partial<typeof DEFAULT_UI_OPTIONS.canvasActions>)[];
       return canvasOptionKeys.every((key) => {
         if (

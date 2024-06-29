@@ -49,6 +49,7 @@ export const actionCopy = register({
   keyTest: undefined,
 });
 
+// 右键粘贴逻辑
 export const actionPaste = register({
   name: "paste",
   label: "labels.paste",
@@ -84,7 +85,6 @@ export const actionPaste = register({
         },
       };
     }
-
     try {
       app.pasteFromClipboard(createPasteEvent({ types }));
     } catch (error: any) {
