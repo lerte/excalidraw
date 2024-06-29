@@ -35,6 +35,7 @@ import { ResolutionType } from "../packages/excalidraw/utility-types.ts";
 import { RestoredDataState } from "../packages/excalidraw/data/restore.ts";
 import { createPasteEvent } from "../packages/excalidraw/clipboard.ts";
 import { importFromLocalStorage } from "./data/localStorage";
+import { invoke } from "@tauri-apps/api/core";
 import { isInitializedImageElement } from "../packages/excalidraw/element/typeChecks.ts";
 import { listen } from "@tauri-apps/api/event";
 import { loadScene } from "./data";
@@ -72,6 +73,7 @@ const ExcalidrawApp = () => {
   };
 
   useEffect(() => {
+    // 安装后禁用右键
     disableContextMenuAfterBundle();
   }, []);
 
@@ -201,34 +203,55 @@ const ExcalidrawApp = () => {
       // 处理拖入文件
       listen<Payload>("tauri://drop", (event) => {
         const { paths } = event.payload;
-        paths.map(async (path) => {
-          // 如果扩展名是.svg,先使用svg-to-excalidraw转换成excalidraw element格式
-          if (path.endsWith(".svg")) {
-            const text = await readTextFile(path);
-            const types = {
-              "text/plain": text,
-            };
-            app?.pasteFromClipboard(createPasteEvent({ types }));
-          }
-          // 如果扩展名是.excalidraw (Excalidraw保存的文件格式)
-          if (path.endsWith(".excalidraw")) {
-            const content = await readTextFile(path);
-            const sceneData = JSON.parse(content);
-            for (let file in sceneData.files) {
-              excalidrawAPI.addFiles([sceneData.files[file]]);
-            }
-            excalidrawAPI.updateScene(sceneData);
-          }
-          // 如果扩展名是.excalidrawlib (Excalidraw保存的库文件格式)
-          if (path.endsWith("excalidrawlib")) {
-            const content = await readTextFile(path);
-            const library = JSON.parse(content);
-            excalidrawAPI.updateLibrary(library);
-          }
-        });
+        handleOpenFile(paths);
       });
+      //
+      startAppWithFile();
     }
   }, [excalidrawAPI]);
+
+  const handleOpenFile = (paths: string[]) => {
+    paths.map(async (path) => {
+      // 如果扩展名是.svg,先使用svg-to-excalidraw转换成excalidraw element格式
+      if (path.endsWith(".svg")) {
+        const text = await readTextFile(path);
+        const types = {
+          "text/plain": text,
+        };
+        app?.pasteFromClipboard(createPasteEvent({ types }));
+      }
+      // 如果扩展名是.excalidraw (Excalidraw保存的文件格式)
+      if (path.endsWith(".excalidraw")) {
+        const content = await readTextFile(path);
+        const sceneData = JSON.parse(content);
+        for (let file in sceneData.files) {
+          excalidrawAPI?.addFiles([sceneData.files[file]]);
+        }
+        excalidrawAPI?.updateScene(sceneData);
+      }
+      // 如果扩展名是.excalidrawlib (Excalidraw保存的库文件格式)
+      if (path.endsWith("excalidrawlib")) {
+        const content = await readTextFile(path);
+        const library = JSON.parse(content);
+        excalidrawAPI?.updateLibrary(library);
+      }
+    });
+  };
+
+  const startAppWithFile = async () => {
+    const content: string = await invoke("start_with_file");
+    const excalidrawFile = JSON.parse(content);
+
+    if (excalidrawFile?.type == "excalidraw") {
+      for (let file in excalidrawFile.files) {
+        excalidrawAPI?.addFiles([excalidrawFile.files[file]]);
+      }
+      excalidrawAPI?.updateScene(excalidrawFile);
+    }
+    if (excalidrawFile?.type == "excalidrawlib") {
+      excalidrawAPI?.updateLibrary(excalidrawFile);
+    }
+  };
 
   return (
     <div className="app h-full">
@@ -240,13 +263,6 @@ const ExcalidrawApp = () => {
         excalidrawAPI={excalidrawRefCallback}
         renderCustomStats={renderCustomStats}
         initialData={initialStatePromiseRef.current.promise}
-        // initialData={{
-        //   scrollToContent: true,
-        //   appState: {
-        //     theme: "dark",
-        //     currentItemFontFamily: 5, // 中文手写 小赖字体
-        //   },
-        // }}
       >
         <WelcomeScreen />
         <AppMainMenu />
