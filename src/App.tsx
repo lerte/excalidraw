@@ -10,12 +10,18 @@ import {
   StoreAction,
   WelcomeScreen,
   newElementWith,
+  useHandleLibrary,
 } from "../packages/excalidraw";
 import {
   FileId,
   NonDeletedExcalidrawElement,
   OrderedExcalidrawElement,
 } from "../packages/excalidraw/element/types";
+import {
+  LibraryIndexedDBAdapter,
+  LibraryLocalStorageMigrationAdapter,
+  LocalData,
+} from "./data/LocalData.ts";
 import {
   ResolvablePromise,
   resolvablePromise,
@@ -25,7 +31,6 @@ import { useEffect, useRef, useState } from "react";
 import App from "../packages/excalidraw/components/App";
 import { AppMainMenu } from "./components/AppMainMenu";
 import CustomStats from "./CustomStats.tsx";
-import { LocalData } from "./data/LocalData.ts";
 import { ResolutionType } from "../packages/excalidraw/utility-types.ts";
 import { RestoredDataState } from "../packages/excalidraw/data/restore.ts";
 import { createPasteEvent } from "../packages/excalidraw/clipboard.ts";
@@ -35,10 +40,12 @@ import { listen } from "@tauri-apps/api/event";
 import { loadScene } from "./data";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import { updateStaleImageStatuses } from "./data/FileManager.ts";
+import { useCallbackRefState } from "../packages/excalidraw/hooks/useCallbackRefState.ts";
 
 const ExcalidrawApp = () => {
   const [app, setApp] = useState<App>();
-  const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
+  const [excalidrawAPI, excalidrawRefCallback] =
+    useCallbackRefState<ExcalidrawImperativeAPI>();
 
   // initial state
   const initialStatePromiseRef = useRef<{
@@ -48,6 +55,13 @@ const ExcalidrawApp = () => {
     initialStatePromiseRef.current.promise =
       resolvablePromise<ExcalidrawInitialDataState | null>();
   }
+
+  useHandleLibrary({
+    excalidrawAPI,
+    adapter: LibraryIndexedDBAdapter,
+    // TODO maybe remove this in several months (shipped: 24-03-11)
+    migrationAdapter: LibraryLocalStorageMigrationAdapter,
+  });
 
   const disableContextMenuAfterBundle = () => {
     if (!import.meta.env.DEV) {
@@ -219,13 +233,13 @@ const ExcalidrawApp = () => {
   return (
     <div className="app h-full">
       <Excalidraw
+        langCode="zh-CN"
+        aiEnabled={false}
         onChange={onChange}
         getApp={(app) => setApp(app)}
-        initialData={initialStatePromiseRef.current.promise}
-        excalidrawAPI={(api) => setExcalidrawAPI(api)}
-        langCode="zh-CN"
+        excalidrawAPI={excalidrawRefCallback}
         renderCustomStats={renderCustomStats}
-        aiEnabled={false}
+        initialData={initialStatePromiseRef.current.promise}
         // initialData={{
         //   scrollToContent: true,
         //   appState: {
