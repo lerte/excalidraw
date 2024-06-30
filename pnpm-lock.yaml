@@ -20,6 +20,9 @@ importers:
       idb-keyval:
         specifier: ^6.2.1
         version: 6.2.1
+      jotai:
+        specifier: 1.13.1
+        version: 1.13.1(@babel/core@7.24.7)(@babel/template@7.24.7)(react@18.3.1)
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -8305,6 +8308,13 @@ snapshots:
       react: 18.2.0
     optionalDependencies:
       '@babel/core': 7.18.9
+      '@babel/template': 7.24.7
+
+  jotai@1.13.1(@babel/core@7.24.7)(@babel/template@7.24.7)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@babel/core': 7.24.7
       '@babel/template': 7.24.7
 
   js-tokens@3.0.2: {}

@@ -1,6 +1,13 @@
 import { MainMenu } from "../../packages/excalidraw";
+import { Theme } from "../../packages/excalidraw/element/types";
 
-export const AppMainMenu = () => {
+export const AppMainMenu = ({
+  theme,
+  setTheme,
+}: {
+  theme: Theme | "system";
+  setTheme: (theme: Theme | "system") => void;
+}) => {
   return (
     <MainMenu>
       <MainMenu.Group>
@@ -12,7 +19,11 @@ export const AppMainMenu = () => {
       </MainMenu.Group>
       <MainMenu.Separator />
       <MainMenu.Group>
-        <MainMenu.DefaultItems.ToggleTheme />
+        <MainMenu.DefaultItems.ToggleTheme
+          theme={theme}
+          allowSystemTheme
+          onSelect={setTheme}
+        />
         <MainMenu.DefaultItems.ChangeCanvasBackground />
       </MainMenu.Group>
     </MainMenu>

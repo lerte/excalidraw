@@ -26,6 +26,7 @@ import {
   ResolvablePromise,
   resolvablePromise,
 } from "../packages/excalidraw/utils.ts";
+import { appThemeAtom, useHandleAppTheme } from "./useHandleAppTheme";
 import { useEffect, useRef, useState } from "react";
 
 import App from "../packages/excalidraw/components/App";
@@ -41,10 +42,13 @@ import { listen } from "@tauri-apps/api/event";
 import { loadScene } from "./data";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import { updateStaleImageStatuses } from "./data/FileManager.ts";
+import { useAtom } from "jotai";
 import { useCallbackRefState } from "../packages/excalidraw/hooks/useCallbackRefState.ts";
 
 const ExcalidrawApp = () => {
   const [app, setApp] = useState<App>();
+  const [appTheme, setAppTheme] = useAtom(appThemeAtom);
+  const { editorTheme } = useHandleAppTheme();
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
 
@@ -257,16 +261,26 @@ const ExcalidrawApp = () => {
   return (
     <div className="app h-full">
       <Excalidraw
+        autoFocus
         langCode="zh-CN"
         aiEnabled={false}
+        theme={editorTheme}
         onChange={onChange}
         getApp={(app) => setApp(app)}
         excalidrawAPI={excalidrawRefCallback}
         renderCustomStats={renderCustomStats}
+        UIOptions={{
+          canvasActions: {
+            toggleTheme: true,
+          },
+        }}
         initialData={initialStatePromiseRef.current.promise}
       >
         <WelcomeScreen />
-        <AppMainMenu />
+        <AppMainMenu
+          theme={appTheme}
+          setTheme={(theme) => setAppTheme(theme)}
+        />
       </Excalidraw>
     </div>
   );
