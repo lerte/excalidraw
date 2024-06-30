@@ -236,12 +236,9 @@ const ExcalidrawApp = () => {
         const filename = arr.join(".");
 
         const type = IMAGE_MIME_TYPES[ext];
-        console.log(filename, ext, type);
 
         const file = uint8ArrayToFile(uint8Array, filename, type);
-
         const files = [file];
-
         app?.pasteFromClipboard(createPasteEvent({ files }));
       }
       // 如果扩展名是.excalidraw (Excalidraw保存的文件格式)
