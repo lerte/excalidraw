@@ -3,6 +3,7 @@ import type { ExcalidrawElement, FontFamilyValues } from "./element/types";
 import type { AppProps } from "./types";
 import { COLOR_PALETTE } from "./colors";
 import cssVariables from "./css/variables.module.scss";
+
 export const isDarwin = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 export const isWindows = /^Win/.test(navigator.platform);
 export const isAndroid = /\b(android)\b/i.test(navigator.userAgent);
@@ -149,7 +150,7 @@ export const WINDOWS_EMOJI_FALLBACK_FONT = "Segoe UI Emoji";
 
 export const MIN_FONT_SIZE = 1;
 export const DEFAULT_FONT_SIZE = 20;
-export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Virgil;
+export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Xiaolai;
 export const DEFAULT_TEXT_ALIGN = "left";
 export const DEFAULT_VERTICAL_ALIGN = "top";
 export const DEFAULT_VERSION = "{version}";
@@ -274,9 +275,9 @@ export const MAX_DECIMALS_FOR_SVG_EXPORT = 2;
 export const EXPORT_SCALES = [1, 2, 3];
 export const DEFAULT_EXPORT_PADDING = 10; // px
 
-export const DEFAULT_MAX_IMAGE_WIDTH_OR_HEIGHT = 1440;
+export const DEFAULT_MAX_IMAGE_WIDTH_OR_HEIGHT = 4096;
 
-export const MAX_ALLOWED_FILE_BYTES = 2 * 1024 * 1024;
+export const MAX_ALLOWED_FILE_BYTES = 20 * 1024 * 1024;
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 
