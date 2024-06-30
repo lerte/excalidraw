@@ -27,11 +27,13 @@ import {
   resolvablePromise,
 } from "../packages/excalidraw/utils.ts";
 import { appThemeAtom, useHandleAppTheme } from "./useHandleAppTheme";
+import { readFile, readTextFile } from "@tauri-apps/plugin-fs";
 import { useEffect, useRef, useState } from "react";
 
 import App from "../packages/excalidraw/components/App";
 import { AppMainMenu } from "./components/AppMainMenu";
 import CustomStats from "./CustomStats.tsx";
+import { IMAGE_MIME_TYPES } from "../packages/excalidraw/constants.ts";
 import { ResolutionType } from "../packages/excalidraw/utility-types.ts";
 import { RestoredDataState } from "../packages/excalidraw/data/restore.ts";
 import { createPasteEvent } from "../packages/excalidraw/clipboard.ts";
@@ -40,7 +42,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { isInitializedImageElement } from "../packages/excalidraw/element/typeChecks.ts";
 import { listen } from "@tauri-apps/api/event";
 import { loadScene } from "./data";
-import { readTextFile } from "@tauri-apps/plugin-fs";
+import { sep } from "@tauri-apps/api/path";
+import { uint8ArrayToFile } from "./utils/index.ts";
 import { updateStaleImageStatuses } from "./data/FileManager.ts";
 import { useAtom } from "jotai";
 import { useCallbackRefState } from "../packages/excalidraw/hooks/useCallbackRefState.ts";
@@ -223,6 +226,23 @@ const ExcalidrawApp = () => {
           "text/plain": text,
         };
         app?.pasteFromClipboard(createPasteEvent({ types }));
+      }
+      // 如果是支持的图片格式，这里不需要包含svg
+      if (/\.[png|jpe?g|gif|webp|bmp|ico|avif|jfif]/.test(path)) {
+        const uint8Array = await readFile(path);
+        const arr = path.split(sep()).pop()?.split(".") as string[];
+
+        const ext = arr.pop() as keyof typeof IMAGE_MIME_TYPES;
+        const filename = arr.join(".");
+
+        const type = IMAGE_MIME_TYPES[ext];
+        console.log(filename, ext, type);
+
+        const file = uint8ArrayToFile(uint8Array, filename, type);
+
+        const files = [file];
+
+        app?.pasteFromClipboard(createPasteEvent({ files }));
       }
       // 如果扩展名是.excalidraw (Excalidraw保存的文件格式)
       if (path.endsWith(".excalidraw")) {

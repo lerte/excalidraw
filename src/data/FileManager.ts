@@ -1,20 +1,21 @@
-import { StoreAction } from "../../packages/excalidraw";
-import { compressData } from "../../packages/excalidraw/data/encode";
-import { newElementWith } from "../../packages/excalidraw/element/mutateElement";
-import { isInitializedImageElement } from "../../packages/excalidraw/element/typeChecks";
+import type {
+  BinaryFileData,
+  BinaryFileMetadata,
+  BinaryFiles,
+  ExcalidrawImperativeAPI,
+} from "../../packages/excalidraw/types";
 import type {
   ExcalidrawElement,
   ExcalidrawImageElement,
   FileId,
   InitializedExcalidrawImageElement,
 } from "../../packages/excalidraw/element/types";
+
+import { StoreAction } from "../../packages/excalidraw";
+import { compressData } from "../../packages/excalidraw/data/encode";
+import { isInitializedImageElement } from "../../packages/excalidraw/element/typeChecks";
+import { newElementWith } from "../../packages/excalidraw/element/mutateElement";
 import { t } from "../../packages/excalidraw/i18n";
-import type {
-  BinaryFileData,
-  BinaryFileMetadata,
-  ExcalidrawImperativeAPI,
-  BinaryFiles,
-} from "../../packages/excalidraw/types";
 
 export class FileManager {
   /** files being fetched */
@@ -102,7 +103,7 @@ export class FileManager {
   };
 
   getFiles = async (
-    ids: FileId[],
+    ids: FileId[]
   ): Promise<{
     loadedFiles: BinaryFileData[];
     erroredFiles: Map<FileId, true>;
@@ -156,7 +157,7 @@ export class FileManager {
    * helper to determine if image element status needs updating
    */
   shouldUpdateImageElementStatus = (
-    element: ExcalidrawElement,
+    element: ExcalidrawElement
   ): element is InitializedExcalidrawImageElement => {
     return (
       isInitializedImageElement(element) &&
@@ -204,7 +205,7 @@ export const encodeFilesForUpload = async ({
       throw new Error(
         t("errors.fileTooBig", {
           maxSize: `${Math.trunc(maxBytes / 1024 / 1024)}MB`,
-        }),
+        })
       );
     }
 
