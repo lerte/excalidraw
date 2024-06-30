@@ -240,6 +240,7 @@ const ExcalidrawApp = () => {
 
   const startAppWithFile = async () => {
     const content: string = await invoke("start_with_file");
+    if (!content) return;
     const excalidrawFile = JSON.parse(content);
 
     if (excalidrawFile?.type == "excalidraw") {
