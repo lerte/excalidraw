@@ -47,6 +47,8 @@ export const useHandleAppTheme = () => {
 
     document.addEventListener(EVENT.KEYDOWN, handleKeydown, { capture: true });
 
+    document.documentElement.className = editorTheme;
+
     return () => {
       mediaQuery?.removeEventListener("change", handleChange);
       document.removeEventListener(EVENT.KEYDOWN, handleKeydown, {
