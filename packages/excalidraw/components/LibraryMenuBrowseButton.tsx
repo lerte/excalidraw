@@ -99,9 +99,9 @@ const LibraryMenuBrowseButton = (_props: {
     const data = await response.json();
 
     await app.library.updateLibrary({
-      defaultStatus: "published",
-      libraryItems: data.library,
       merge: true,
+      defaultStatus: "published",
+      libraryItems: data.library || data.libraryItems,
     });
   };
 
