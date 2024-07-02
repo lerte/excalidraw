@@ -1,3 +1,4 @@
+import { LanguageList } from "./LanguageList";
 import { MainMenu } from "../../packages/excalidraw";
 import { Theme } from "../../packages/excalidraw/element/types";
 
@@ -24,8 +25,11 @@ export const AppMainMenu = ({
           allowSystemTheme
           onSelect={setTheme}
         />
-        <MainMenu.DefaultItems.ChangeCanvasBackground />
       </MainMenu.Group>
+      <MainMenu.ItemCustom>
+        <LanguageList style={{ width: "100%" }} />
+      </MainMenu.ItemCustom>
+      <MainMenu.DefaultItems.ChangeCanvasBackground />
     </MainMenu>
   );
 };

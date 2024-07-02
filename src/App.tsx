@@ -9,6 +9,7 @@ import {
   Excalidraw,
   StoreAction,
   WelcomeScreen,
+  defaultLang,
   newElementWith,
   useHandleLibrary,
 } from "../packages/excalidraw";
@@ -27,6 +28,7 @@ import {
   resolvablePromise,
 } from "../packages/excalidraw/utils.ts";
 import { appThemeAtom, useHandleAppTheme } from "./useHandleAppTheme";
+import { atom, useAtom } from "jotai";
 import { readFile, readTextFile } from "@tauri-apps/plugin-fs";
 import { useEffect, useRef, useState } from "react";
 
@@ -34,6 +36,7 @@ import App from "../packages/excalidraw/components/App";
 import { AppMainMenu } from "./components/AppMainMenu";
 import CustomStats from "./CustomStats.tsx";
 import { IMAGE_MIME_TYPES } from "../packages/excalidraw/constants.ts";
+import LanguageDetector from "i18next-browser-languagedetector";
 import { ResolutionType } from "../packages/excalidraw/utility-types.ts";
 import { RestoredDataState } from "../packages/excalidraw/data/restore.ts";
 import { createPasteEvent } from "../packages/excalidraw/clipboard.ts";
@@ -45,13 +48,23 @@ import { loadScene } from "./data";
 import { sep } from "@tauri-apps/api/path";
 import { uint8ArrayToFile } from "./utils/index.ts";
 import { updateStaleImageStatuses } from "./data/FileManager.ts";
-import { useAtom } from "jotai";
 import { useCallbackRefState } from "../packages/excalidraw/hooks/useCallbackRefState.ts";
+
+const languageDetector = new LanguageDetector();
+languageDetector.init({
+  languageUtils: {},
+});
+
+const detectedLangCode = languageDetector.detect() || defaultLang.code;
+export const appLangCodeAtom = atom(
+  Array.isArray(detectedLangCode) ? detectedLangCode[0] : detectedLangCode
+);
 
 const ExcalidrawApp = () => {
   const [app, setApp] = useState<App>();
-  const [appTheme, setAppTheme] = useAtom(appThemeAtom);
+  const [langCode] = useAtom(appLangCodeAtom);
   const { editorTheme } = useHandleAppTheme();
+  const [appTheme, setAppTheme] = useAtom(appThemeAtom);
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
 
@@ -116,6 +129,10 @@ const ExcalidrawApp = () => {
     }
     return { scene: null, isExternalScene: false };
   };
+
+  useEffect(() => {
+    languageDetector.cacheUserLanguage(langCode);
+  }, [langCode]);
 
   const onChange = (
     elements: readonly OrderedExcalidrawElement[],
@@ -279,8 +296,8 @@ const ExcalidrawApp = () => {
     <div className="app h-full">
       <Excalidraw
         autoFocus
-        langCode="zh-CN"
         aiEnabled={false}
+        langCode={langCode}
         theme={editorTheme}
         onChange={onChange}
         getApp={(app) => setApp(app)}
