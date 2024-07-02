@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Dialog } from "./Dialog";
 import { TextField } from "./TextField";
 import { t } from "../i18n";
+import { useApp } from "./App";
 
 type Stats = Record<
   string,
@@ -34,10 +35,12 @@ const LibraryMenuBrowseButton = (_props: {
   theme: UIAppState["theme"];
   id: string;
 }) => {
+  const app = useApp();
   const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
   const [stats, setStats] = useState<Stats>({
     "": {
       total: 0,
@@ -94,7 +97,12 @@ const LibraryMenuBrowseButton = (_props: {
       `${import.meta.env.VITE_APP_LIBRARY_URL}/libraries/${library.source}`
     );
     const data = await response.json();
-    console.log(data);
+
+    await app.library.updateLibrary({
+      defaultStatus: "published",
+      libraryItems: data.library,
+      merge: true,
+    });
   };
 
   return (
@@ -106,20 +114,24 @@ const LibraryMenuBrowseButton = (_props: {
           title="Excalidraw Libraries"
           onCloseRequest={() => setOpen(false)}
         >
-          <TextField
-            ref={inputRef}
-            value={searchText}
-            onChange={(value) => {
-              setSearchText(value);
-            }}
-            placeholder={t("commandPalette.search.placeholder")}
-          />
+          <section className="sticky top-4 bg-white dark:bg-black shadow-xl">
+            <TextField
+              ref={inputRef}
+              value={searchText}
+              onChange={(value) => {
+                setSearchText(value);
+              }}
+              placeholder={t("commandPalette.search.placeholder")}
+            />
+          </section>
 
           <ul>
             {filterLibraries.map((library) => (
               <li
-                id={library.id}
-                key={library.id}
+                key={
+                  library.id ||
+                  library.source.replace(".excalidrawlib", "").replace("/", "-")
+                }
               >
                 <div className="flex flex-col gap-4 py-8">
                   <h2 className="text-2xl">{library.name}</h2>
