@@ -23,7 +23,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["app", "appimage", "deb", "dmg", "nsis"],
+    "targets": ["appimage", "dmg", "nsis", "updater"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -31,10 +31,24 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "copyright": "Copyright © 2024 Lerte.",
+    "copyright": "Copyright © 2024 Excalidraw",
     "windows": {
       "nsis": {
-        "installerIcon": "icons/icon.ico"
+        "installMode": "perMachine",
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "sidebarImage": "assets/sidebar.bmp",
+        "languages": [
+          "SimpChinese",
+          "TradChinese",
+          "English",
+          "Russian",
+          "Japanese",
+          "Swedish",
+          "Spanish",
+          "Italian",
+          "Korean"
+        ]
       }
     },
     "fileAssociations": [
