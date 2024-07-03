@@ -1,16 +1,17 @@
-import type React from "react";
+import type {
+  AppClassProperties,
+  AppState,
+  BinaryFiles,
+  ExcalidrawProps,
+  UIAppState,
+} from "../types";
 import type {
   ExcalidrawElement,
   OrderedExcalidrawElement,
 } from "../element/types";
-import type {
-  AppClassProperties,
-  AppState,
-  ExcalidrawProps,
-  BinaryFiles,
-  UIAppState,
-} from "../types";
+
 import type { MarkOptional } from "../utility-types";
+import type React from "react";
 import type { StoreActionType } from "../store";
 
 export type ActionSource =
@@ -38,7 +39,7 @@ type ActionFn = (
   elements: readonly OrderedExcalidrawElement[],
   appState: Readonly<AppState>,
   formData: any,
-  app: AppClassProperties,
+  app: AppClassProperties
 ) => ActionResult | Promise<ActionResult>;
 
 export type UpdaterFn = (res: ActionResult) => void;
@@ -134,6 +135,7 @@ export type ActionName =
   | "setEmbeddableAsActiveTool"
   | "createContainerFromText"
   | "wrapTextInContainer"
+  | "textToPath"
   | "commandPalette"
   | "autoResize"
   | "elementStats";
@@ -154,14 +156,14 @@ export interface Action {
     | ((
         elements: readonly ExcalidrawElement[],
         appState: Readonly<AppState>,
-        app: AppClassProperties,
+        app: AppClassProperties
       ) => string);
   keywords?: string[];
   icon?:
     | React.ReactNode
     | ((
         appState: UIAppState,
-        elements: readonly ExcalidrawElement[],
+        elements: readonly ExcalidrawElement[]
       ) => React.ReactNode);
   PanelComponent?: React.FC<PanelComponentProps>;
   perform: ActionFn;
@@ -170,13 +172,13 @@ export interface Action {
     event: React.KeyboardEvent | KeyboardEvent,
     appState: AppState,
     elements: readonly ExcalidrawElement[],
-    app: AppClassProperties,
+    app: AppClassProperties
   ) => boolean;
   predicate?: (
     elements: readonly ExcalidrawElement[],
     appState: AppState,
     appProps: ExcalidrawProps,
-    app: AppClassProperties,
+    app: AppClassProperties
   ) => boolean;
   checked?: (appState: Readonly<AppState>) => boolean;
   trackEvent:
@@ -195,7 +197,7 @@ export interface Action {
         predicate?: (
           appState: Readonly<AppState>,
           elements: readonly ExcalidrawElement[],
-          value: any,
+          value: any
         ) => boolean;
       };
   /** if set to `true`, allow action to be performed in viewMode.

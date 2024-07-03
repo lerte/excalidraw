@@ -33,6 +33,8 @@ import { isTextElement, newElement } from "../element";
 import type { AppState } from "../types";
 import type { Mutable } from "../utility-types";
 import { StoreAction } from "../store";
+import { TextToSVG } from "./../../utils";
+import { createPasteEvent } from "../clipboard";
 import { mutateElement } from "../element/mutateElement";
 import { register } from "./register";
 import { syncMovedIndices } from "../fractionalIndex";
@@ -315,6 +317,50 @@ export const actionWrapTextInContainer = register({
         );
 
         containerIds[container.id] = true;
+      }
+    }
+
+    return {
+      elements: updatedElements,
+      appState: {
+        ...appState,
+        selectedElementIds: containerIds,
+      },
+      storeAction: StoreAction.CAPTURE,
+    };
+  },
+});
+
+// 文本转svg然后再转成excalidraw element
+export const actionTextToPath = register({
+  name: "textToPath",
+  label: "labels.textToPath",
+  trackEvent: { category: "element" },
+  predicate: (_elements, appState, _, app) => {
+    const selectedElements = app.scene.getSelectedElements(appState);
+    const areTextElements = selectedElements.every((el) => isTextElement(el));
+    return selectedElements.length > 0 && areTextElements;
+  },
+  perform: (elements, appState, _, app) => {
+    const selectedElements = app.scene.getSelectedElements(appState);
+    let updatedElements: readonly ExcalidrawElement[] = elements.slice();
+    const containerIds: Mutable<AppState["selectedElementIds"]> = {};
+
+    for (const textElement of selectedElements) {
+      if (isTextElement(textElement)) {
+        TextToSVG.load("/fonts/XiaolaiMonoSC-Regular.ttf", (err, textToSVG) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          const svg = textToSVG?.getSVG(textElement.text);
+          if (svg) {
+            const types = {
+              "text/plain": svg,
+            };
+            app?.pasteFromClipboard(createPasteEvent({ types }));
+          }
+        });
       }
     }
 

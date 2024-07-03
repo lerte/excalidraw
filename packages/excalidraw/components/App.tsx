@@ -175,6 +175,10 @@ import {
   actionRemoveAllElementsFromFrame,
   actionSelectAllElementsInFrame,
 } from "../actions/actionFrame";
+import {
+  actionTextToPath,
+  actionWrapTextInContainer,
+} from "../actions/actionBoundText";
 import { actionToggleHandTool, zoomToFit } from "../actions/actionCanvas";
 import {
   addElementsToFrame,
@@ -410,7 +414,6 @@ import { actionPaste } from "../actions/actionClipboard";
 import { actionTextAutoResize } from "../actions/actionTextAutoResize";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { actionUnlockAllElements } from "../actions/actionElementLock";
-import { actionWrapTextInContainer } from "../actions/actionBoundText";
 import { actions } from "../actions/register";
 import { activeConfirmDialogAtom } from "./ActiveConfirmDialog";
 import { activeEyeDropperAtom } from "./EyeDropper";
@@ -9749,6 +9752,7 @@ class App extends React.Component<AppProps, AppState> {
       actionUnbindText,
       actionBindText,
       actionWrapTextInContainer,
+      actionTextToPath,
       actionUngroup,
       CONTEXT_MENU_SEPARATOR,
       actionAddToLibrary,
