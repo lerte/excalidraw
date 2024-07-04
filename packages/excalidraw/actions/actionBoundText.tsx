@@ -353,7 +353,7 @@ export const actionTextToPath = register({
             console.log(err);
             return;
           }
-          const svg = textToSVG?.getSVG(textElement.text);
+          const svg = textToSVG?.getSVG(textElement);
           if (svg) {
             const types = {
               "text/plain": svg,

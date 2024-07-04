@@ -1,4 +1,7 @@
+import { ExcalidrawTextElement, NonDeleted } from "../excalidraw/element/types";
 import opentype, { Font } from "opentype.js";
+
+import { DEFAULT_FONT_SIZE } from "../excalidraw/constants";
 
 type Anchor =
   | "left baseline"
@@ -147,7 +150,7 @@ export class TextToSVG {
   }
 
   getMetrics(text: string, options: FontOptions) {
-    const fontSize = options.fontSize || 72;
+    const fontSize = options.fontSize || DEFAULT_FONT_SIZE;
     const anchor = parseAnchorOption(options.anchor);
 
     const width = this.getWidth(text, options);
@@ -221,7 +224,10 @@ export class TextToSVG {
     return path.toPathData(1); // todo decimalPlaces
   }
 
-  getPath(text: string, options: GenerationOptions) {
+  getPath(
+    { text, strokeColor }: NonDeleted<ExcalidrawTextElement>,
+    options: GenerationOptions
+  ) {
     const attributes = Object.keys(options.attributes || {})
       // @ts-ignore
       .map((key) => `${key}="${options.attributes[key]}"`)
@@ -232,41 +238,14 @@ export class TextToSVG {
       return `<path ${attributes} d="${d}"/>`;
     }
 
-    return `<path d="${d}"/>`;
+    return `<path fill="${strokeColor}" d="${d}"/>`;
   }
 
-  getSVG(text: string, options = {}) {
-    const metrics = this.getMetrics(text, options);
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${metrics.width} ${metrics.height}">`;
-    svg += this.getPath(text, options);
-    svg += "</svg>";
-
-    return svg;
-  }
-
-  getDebugSVG(text: string, options: { x?: number; y?: number } = {}) {
-    options = JSON.parse(JSON.stringify(options));
-
-    options.x = options.x || 0;
-    options.y = options.y || 0;
-    const metrics = this.getMetrics(text, options);
-    const box = {
-      width: Math.max(metrics.x + metrics.width, 0) - Math.min(metrics.x, 0),
-      height: Math.max(metrics.y + metrics.height, 0) - Math.min(metrics.y, 0),
-    };
-    const origin = {
-      x: box.width - Math.max(metrics.x + metrics.width, 0),
-      y: box.height - Math.max(metrics.y + metrics.height, 0),
-    };
-
-    // Shift text based on origin
-    options.x += origin.x;
-    options.y += origin.y;
-
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${box.width}" height="${box.height}">`;
-    svg += `<path fill="none" stroke="red" stroke-width="1" d="M0,${origin.y}L${box.width},${origin.y}"/>`; // X Axis
-    svg += `<path fill="none" stroke="red" stroke-width="1" d="M${origin.x},0L${origin.x},${box.height}"/>`; // Y Axis
-    svg += this.getPath(text, options);
+  getSVG(textElement: NonDeleted<ExcalidrawTextElement>) {
+    const { fontSize } = textElement;
+    const metrics = this.getMetrics(textElement.text, { fontSize });
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${metrics.width} ${metrics.height}">`;
+    svg += this.getPath(textElement, { fontSize });
     svg += "</svg>";
 
     return svg;

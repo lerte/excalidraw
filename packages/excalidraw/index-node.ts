@@ -72,7 +72,7 @@ const canvas = exportToCanvas(
     exportBackground: true,
     viewBackgroundColor: "#ffffff",
   },
-  createCanvas,
+  createCanvas
 );
 
 const fs = require("fs");
