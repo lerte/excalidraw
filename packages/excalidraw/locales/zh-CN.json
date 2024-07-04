@@ -140,7 +140,8 @@
     "removeAllElementsFromFrame": "分离出画框中的所有元素",
     "eyeDropper": "从画布上取色",
     "textToDiagram": "文字至图表",
-    "prompt": "Prompt"
+    "prompt": "Prompt",
+    "autoResize": "启用文本自动调整大小"
   },
   "library": {
     "noItems": "尚未添加任何项目……",
