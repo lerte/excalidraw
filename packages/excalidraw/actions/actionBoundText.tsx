@@ -10,7 +10,7 @@ import type {
   ExcalidrawTextContainer,
   ExcalidrawTextElement,
 } from "../element/types";
-import { arrayToMap, getFontString } from "../utils";
+import { arrayToMap, getFontFamilyString, getFontString } from "../utils";
 import {
   computeBoundTextPosition,
   computeContainerDimensionForBoundText,
@@ -348,7 +348,10 @@ export const actionTextToPath = register({
 
     for (const textElement of selectedElements) {
       if (isTextElement(textElement)) {
-        TextToSVG.load("/fonts/XiaolaiMonoSC-Regular.ttf", (err, textToSVG) => {
+        const fontFamily = getFontFamilyString(textElement);
+        const [currentFontFamily] = fontFamily.split(",");
+
+        TextToSVG.load(`/fonts/${currentFontFamily}.ttf`, (err, textToSVG) => {
           if (err) {
             console.log(err);
             return;
