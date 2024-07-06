@@ -419,6 +419,7 @@ import { activeConfirmDialogAtom } from "./ActiveConfirmDialog";
 import { activeEyeDropperAtom } from "./EyeDropper";
 import clsx from "clsx";
 import { convertToExcalidrawElements } from "../data/transform";
+import { createPasteEvent } from "./../clipboard";
 import { diagramToHTML } from "../data/magic";
 import { exportToBlob } from "../../utils/export";
 import { fileOpen } from "../data/filesystem";
@@ -2634,7 +2635,23 @@ class App extends React.Component<AppProps, AppState> {
         EVENT.FULLSCREENCHANGE,
         this.onFullscreenChange
       ),
-      addEventListener(document, EVENT.PASTE, this.pasteFromClipboard),
+      addEventListener(document, EVENT.PASTE, (event) => {
+        const file = event?.clipboardData?.files[0];
+        if (file?.type == "image/svg+xml") {
+          // 如果粘贴的是svg图片
+          const reader = new FileReader();
+          reader.onload = () => {
+            const types = {
+              "text/plain": reader.result as string,
+            };
+            const clipboardEvent = createPasteEvent({ types });
+            this.pasteFromClipboard(clipboardEvent);
+          };
+          reader.readAsText(file);
+        } else {
+          this.pasteFromClipboard(event);
+        }
+      }),
       addEventListener(document, EVENT.CUT, this.onCut),
       addEventListener(window, EVENT.RESIZE, this.onResize, false),
       addEventListener(window, EVENT.UNLOAD, this.onUnload, false),
@@ -2990,6 +3007,7 @@ class App extends React.Component<AppProps, AppState> {
       // event else some browsers (FF...) will clear the clipboardData
       // (something something security)
       let file = event?.clipboardData?.files[0];
+
       const data = await parseClipboard(event, isPlainPaste);
 
       if (!file && !isPlainPaste) {
@@ -3051,6 +3069,7 @@ class App extends React.Component<AppProps, AppState> {
           },
         });
       } else if (data.elements) {
+        console.log(data.elements);
         const elements = (
           data.programmaticAPI
             ? convertToExcalidrawElements(
