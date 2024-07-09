@@ -331,7 +331,7 @@ export const actionWrapTextInContainer = register({
   },
 });
 
-// 文本转svg然后再转成excalidraw element
+// 文本转svg然后再以svg字符串走粘贴逻辑
 export const actionTextToPath = register({
   name: "textToPath",
   label: "labels.textToPath",
@@ -349,21 +349,31 @@ export const actionTextToPath = register({
     for (const textElement of selectedElements) {
       if (isTextElement(textElement)) {
         const fontFamily = getFontFamilyString(textElement);
-        const [currentFontFamily] = fontFamily.split(",");
+        const [primaryFontFamily, emojiFontFamily] = fontFamily.split(",");
 
-        TextToSVG.load(`/fonts/${currentFontFamily}.ttf`, (err, textToSVG) => {
-          if (err) {
-            console.log(err);
-            return;
+        let currentFontFamily = primaryFontFamily;
+        const emojiRegExp =
+          /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/gi;
+        if (emojiRegExp.test(textElement.text)) {
+          currentFontFamily = emojiFontFamily;
+        }
+
+        TextToSVG.load(
+          `/fonts/${currentFontFamily.trim()}.ttf`,
+          (err, textToSVG) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            const svg = textToSVG?.getSVG(textElement);
+            if (svg) {
+              const types = {
+                "text/plain": svg,
+              };
+              app?.pasteFromClipboard(createPasteEvent({ types }));
+            }
           }
-          const svg = textToSVG?.getSVG(textElement);
-          if (svg) {
-            const types = {
-              "text/plain": svg,
-            };
-            app?.pasteFromClipboard(createPasteEvent({ types }));
-          }
-        });
+        );
       }
     }
 
