@@ -3069,7 +3069,6 @@ class App extends React.Component<AppProps, AppState> {
           },
         });
       } else if (data.elements) {
-        console.log(data.elements);
         const elements = (
           data.programmaticAPI
             ? convertToExcalidrawElements(
