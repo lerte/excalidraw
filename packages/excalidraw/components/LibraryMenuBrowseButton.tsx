@@ -110,18 +110,18 @@ const LibraryMenuBrowseButton = (_props: {
       {open && (
         <Dialog
           size="wide"
-          className="*:[overflow-x:hidden]"
           title="Excalidraw Libraries"
           onCloseRequest={() => setOpen(false)}
+          className="*:[overflow-x:hidden] *:[min-height:100%]"
         >
-          <section className="sticky top-4 bg-white dark:bg-black shadow-xl">
+          <section className="sticky top-4 z-50 bg-[var(--island-bg-color)] overflow-hidden rounded-lg shadow-xl">
             <TextField
               ref={inputRef}
               value={searchText}
               onChange={(value) => {
                 setSearchText(value);
               }}
-              placeholder={t("commandPalette.search.placeholder")}
+              placeholder="Search..."
             />
           </section>
 
