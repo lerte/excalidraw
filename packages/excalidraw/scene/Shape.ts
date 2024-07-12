@@ -1,27 +1,28 @@
-import type { Drawable, Options } from "roughjs/bin/core";
-import type { RoughGenerator } from "roughjs/bin/generator";
-import { getDiamondPoints, getArrowheadPoints } from "../element";
-import type { ElementShapes } from "./types";
 import type {
-  ExcalidrawElement,
-  NonDeletedExcalidrawElement,
-  ExcalidrawSelectionElement,
-  ExcalidrawLinearElement,
   Arrowhead,
+  ExcalidrawElement,
+  ExcalidrawLinearElement,
+  ExcalidrawSelectionElement,
+  NonDeletedExcalidrawElement,
 } from "../element/types";
-import { isPathALoop, getCornerRadius } from "../math";
-import { generateFreeDrawShape } from "../renderer/renderElement";
-import { isTransparent, assertNever } from "../utils";
-import { simplify } from "points-on-curve";
-import { ROUGHNESS } from "../constants";
+import type { Drawable, Options } from "roughjs/bin/core";
+import { assertNever, isTransparent } from "../utils";
+import { getArrowheadPoints, getDiamondPoints } from "../element";
+import { getCornerRadius, isPathALoop } from "../math";
 import {
   isEmbeddableElement,
   isIframeElement,
   isIframeLikeElement,
   isLinearElement,
 } from "../element/typeChecks";
-import { canChangeRoundness } from "./comparisons";
+
+import type { ElementShapes } from "./types";
 import type { EmbedsValidationStatus } from "../types";
+import { ROUGHNESS } from "../constants";
+import type { RoughGenerator } from "roughjs/bin/generator";
+import { canChangeRoundness } from "./comparisons";
+import { generateFreeDrawShape } from "../renderer/renderElement";
+import { simplify } from "points-on-curve";
 
 const getDashArrayDashed = (strokeWidth: number) => [8, 8 + strokeWidth];
 
@@ -52,7 +53,7 @@ function adjustRoughness(element: ExcalidrawElement): number {
 
 export const generateRoughOptions = (
   element: ExcalidrawElement,
-  continuousPath = false,
+  continuousPath = false
 ): Options => {
   const options: Options = {
     seed: element.seed,
@@ -119,7 +120,7 @@ export const generateRoughOptions = (
 const modifyIframeLikeForRoughOptions = (
   element: NonDeletedExcalidrawElement,
   isExporting: boolean,
-  embedsValidationStatus: EmbedsValidationStatus | null,
+  embedsValidationStatus: EmbedsValidationStatus | null
 ) => {
   if (
     isIframeLikeElement(element) &&
@@ -156,13 +157,13 @@ const getArrowheadShapes = (
   arrowhead: Arrowhead,
   generator: RoughGenerator,
   options: Options,
-  canvasBackgroundColor: string,
+  canvasBackgroundColor: string
 ) => {
   const arrowheadPoints = getArrowheadPoints(
     element,
     shape,
     position,
-    arrowhead,
+    arrowhead
   );
 
   if (arrowheadPoints === null) {
@@ -215,7 +216,7 @@ const getArrowheadShapes = (
                 : element.strokeColor,
             fillStyle: "solid",
             roughness: Math.min(1, options.roughness || 0),
-          },
+          }
         ),
       ];
     }
@@ -243,7 +244,7 @@ const getArrowheadShapes = (
                 : element.strokeColor,
             fillStyle: "solid",
             roughness: Math.min(1, options.roughness || 0),
-          },
+          }
         ),
       ];
     }
@@ -287,7 +288,7 @@ export const _generateElementShape = (
     isExporting: boolean;
     canvasBackgroundColor: string;
     embedsValidationStatus: EmbedsValidationStatus | null;
-  },
+  }
 ): Drawable | Drawable[] | null => {
   switch (element.type) {
     case "rectangle":
@@ -311,10 +312,10 @@ export const _generateElementShape = (
             modifyIframeLikeForRoughOptions(
               element,
               isExporting,
-              embedsValidationStatus,
+              embedsValidationStatus
             ),
-            true,
-          ),
+            true
+          )
         );
       } else {
         shape = generator.rectangle(
@@ -326,10 +327,10 @@ export const _generateElementShape = (
             modifyIframeLikeForRoughOptions(
               element,
               isExporting,
-              embedsValidationStatus,
+              embedsValidationStatus
             ),
-            false,
-          ),
+            false
+          )
         );
       }
       return shape;
@@ -344,7 +345,7 @@ export const _generateElementShape = (
 
         const horizontalRadius = getCornerRadius(
           Math.abs(rightY - topY),
-          element,
+          element
         );
 
         shape = generator.path(
@@ -366,7 +367,7 @@ export const _generateElementShape = (
             C ${topX} ${topY}, ${topX} ${topY}, ${topX + verticalRadius} ${
             topY + horizontalRadius
           }`,
-          generateRoughOptions(element, true),
+          generateRoughOptions(element, true)
         );
       } else {
         shape = generator.polygon(
@@ -376,7 +377,7 @@ export const _generateElementShape = (
             [bottomX, bottomY],
             [leftX, leftY],
           ],
-          generateRoughOptions(element),
+          generateRoughOptions(element)
         );
       }
       return shape;
@@ -387,7 +388,7 @@ export const _generateElementShape = (
         element.height / 2,
         element.width,
         element.height,
-        generateRoughOptions(element),
+        generateRoughOptions(element)
       );
       return shape;
     }
@@ -424,7 +425,7 @@ export const _generateElementShape = (
             startArrowhead,
             generator,
             options,
-            canvasBackgroundColor,
+            canvasBackgroundColor
           );
           shape.push(...shapes);
         }
@@ -441,7 +442,7 @@ export const _generateElementShape = (
             endArrowhead,
             generator,
             options,
-            canvasBackgroundColor,
+            canvasBackgroundColor
           );
           shape.push(...shapes);
         }
@@ -476,7 +477,7 @@ export const _generateElementShape = (
     default: {
       assertNever(
         element,
-        `generateElementShape(): Unimplemented type ${(element as any)?.type}`,
+        `generateElementShape(): Unimplemented type ${(element as any)?.type}`
       );
       return null;
     }

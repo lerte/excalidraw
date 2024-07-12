@@ -1,8 +1,7 @@
-import type { NormalizedZoomValue, Point, Zoom } from "./types";
 import {
   DEFAULT_ADAPTIVE_RADIUS,
-  LINE_CONFIRM_THRESHOLD,
   DEFAULT_PROPORTIONAL_RADIUS,
+  LINE_CONFIRM_THRESHOLD,
   ROUNDNESS,
 } from "./constants";
 import type {
@@ -10,9 +9,11 @@ import type {
   ExcalidrawLinearElement,
   NonDeleted,
 } from "./element/types";
-import { getCurvePathOps } from "./element/bounds";
+import type { NormalizedZoomValue, Point, Zoom } from "./types";
+
 import type { Mutable } from "./utility-types";
 import { ShapeCache } from "./scene/ShapeCache";
+import { getCurvePathOps } from "./element/bounds";
 
 export const rotate = (
   // target point to rotate
@@ -21,7 +22,7 @@ export const rotate = (
   // point to rotate against
   cx: number,
   cy: number,
-  angle: number,
+  angle: number
 ): [number, number] =>
   // 𝑎′𝑥=(𝑎𝑥−𝑐𝑥)cos𝜃−(𝑎𝑦−𝑐𝑦)sin𝜃+𝑐𝑥
   // 𝑎′𝑦=(𝑎𝑥−𝑐𝑥)sin𝜃+(𝑎𝑦−𝑐𝑦)cos𝜃+𝑐𝑦.
@@ -34,7 +35,7 @@ export const rotate = (
 export const rotatePoint = (
   point: Point,
   center: Point,
-  angle: number,
+  angle: number
 ): [number, number] => rotate(point[0], point[1], center[0], center[1], angle);
 
 export const adjustXYWithRotation = (
@@ -50,7 +51,7 @@ export const adjustXYWithRotation = (
   deltaX1: number,
   deltaY1: number,
   deltaX2: number,
-  deltaY2: number,
+  deltaY2: number
 ): [number, number] => {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
@@ -162,7 +163,7 @@ export const centerPoint = (a: Point, b: Point): Point => {
 export const isPathALoop = (
   points: ExcalidrawLinearElement["points"],
   /** supply if you want the loop detection to account for current zoom */
-  zoomValue: Zoom["value"] = 1 as NormalizedZoomValue,
+  zoomValue: Zoom["value"] = 1 as NormalizedZoomValue
 ): boolean => {
   if (points.length >= 3) {
     const [first, last] = [points[0], points[points.length - 1]];
@@ -181,7 +182,7 @@ export const isPathALoop = (
 export const isPointInPolygon = (
   points: Point[],
   x: number,
-  y: number,
+  y: number
 ): boolean => {
   const vertices = points.length;
 
@@ -267,7 +268,7 @@ const doSegmentsIntersect = (p1: Point, q1: Point, p2: Point, q2: Point) => {
 export const getGridPoint = (
   x: number,
   y: number,
-  gridSize: number | null,
+  gridSize: number | null
 ): [number, number] => {
   if (gridSize) {
     return [
@@ -278,22 +279,25 @@ export const getGridPoint = (
   return [x, y];
 };
 
-export const getCornerRadius = (x: number, element: ExcalidrawElement) => {
+export const getCornerRadius = (
+  minSide: number,
+  element: ExcalidrawElement
+) => {
   if (
     element.roundness?.type === ROUNDNESS.PROPORTIONAL_RADIUS ||
     element.roundness?.type === ROUNDNESS.LEGACY
   ) {
-    return x * DEFAULT_PROPORTIONAL_RADIUS;
+    return minSide * DEFAULT_PROPORTIONAL_RADIUS;
   }
 
   if (element.roundness?.type === ROUNDNESS.ADAPTIVE_RADIUS) {
     const fixedRadiusSize = element.roundness?.value ?? DEFAULT_ADAPTIVE_RADIUS;
 
-    const CUTOFF_SIZE = fixedRadiusSize / DEFAULT_PROPORTIONAL_RADIUS;
+    // const CUTOFF_SIZE = fixedRadiusSize / DEFAULT_PROPORTIONAL_RADIUS;
 
-    if (x <= CUTOFF_SIZE) {
-      return x * DEFAULT_PROPORTIONAL_RADIUS;
-    }
+    // if (minSide <= CUTOFF_SIZE) {
+    //   return minSide * DEFAULT_PROPORTIONAL_RADIUS;
+    // }
 
     return fixedRadiusSize;
   }
@@ -303,7 +307,7 @@ export const getCornerRadius = (x: number, element: ExcalidrawElement) => {
 
 export const getControlPointsForBezierCurve = (
   element: NonDeleted<ExcalidrawLinearElement>,
-  endPoint: Point,
+  endPoint: Point
 ) => {
   const shape = ShapeCache.generateElementShape(element, null);
   if (!shape) {
@@ -344,7 +348,7 @@ export const getBezierXY = (
   p1: Point,
   p2: Point,
   p3: Point,
-  t: number,
+  t: number
 ) => {
   const equation = (t: number, idx: number) =>
     Math.pow(1 - t, 3) * p3[idx] +
@@ -358,11 +362,11 @@ export const getBezierXY = (
 
 export const getPointsInBezierCurve = (
   element: NonDeleted<ExcalidrawLinearElement>,
-  endPoint: Point,
+  endPoint: Point
 ) => {
   const controlPoints: Mutable<Point>[] = getControlPointsForBezierCurve(
     element,
-    endPoint,
+    endPoint
   )!;
   if (!controlPoints) {
     return [];
@@ -376,7 +380,7 @@ export const getPointsInBezierCurve = (
       controlPoints[1],
       controlPoints[2],
       controlPoints[3],
-      t,
+      t
     );
     pointsOnCurve.push([point[0], point[1]]);
     t -= 0.05;
@@ -391,7 +395,7 @@ export const getPointsInBezierCurve = (
 
 export const getBezierCurveArcLengths = (
   element: NonDeleted<ExcalidrawLinearElement>,
-  endPoint: Point,
+  endPoint: Point
 ) => {
   const arcLengths: number[] = [];
   arcLengths[0] = 0;
@@ -403,7 +407,7 @@ export const getBezierCurveArcLengths = (
       points[index][0],
       points[index][1],
       points[index + 1][0],
-      points[index + 1][1],
+      points[index + 1][1]
     );
     distance += segmentDistance;
     arcLengths.push(distance);
@@ -415,7 +419,7 @@ export const getBezierCurveArcLengths = (
 
 export const getBezierCurveLength = (
   element: NonDeleted<ExcalidrawLinearElement>,
-  endPoint: Point,
+  endPoint: Point
 ) => {
   const arcLengths = getBezierCurveArcLengths(element, endPoint);
   return arcLengths.at(-1) as number;
@@ -425,7 +429,7 @@ export const getBezierCurveLength = (
 export const mapIntervalToBezierT = (
   element: NonDeleted<ExcalidrawLinearElement>,
   endPoint: Point,
-  interval: number, // The interval between 0 to 1 for which you want to find the point on the curve,
+  interval: number // The interval between 0 to 1 for which you want to find the point on the curve,
 ) => {
   const arcLengths = getBezierCurveArcLengths(element, endPoint);
   const pointsCount = arcLengths.length - 1;
@@ -487,7 +491,7 @@ export const degreeToRadian = (d: number) => {
 // e.g. [1, 3] overlaps with [2, 4] while [1, 3] does not overlap with [4, 5]
 export const rangesOverlap = (
   [a0, a1]: [number, number],
-  [b0, b1]: [number, number],
+  [b0, b1]: [number, number]
 ) => {
   if (a0 <= b0) {
     return a1 >= b0;
@@ -504,7 +508,7 @@ export const rangesOverlap = (
 // e.g. the intersection of [1, 3] and [2, 4] is [2, 3]
 export const rangeIntersection = (
   rangeA: [number, number],
-  rangeB: [number, number],
+  rangeB: [number, number]
 ): [number, number] | null => {
   const rangeStart = Math.max(rangeA[0], rangeB[0]);
   const rangeEnd = Math.min(rangeA[1], rangeB[1]);

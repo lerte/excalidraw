@@ -36,6 +36,9 @@ export const isPropertyEditable = (
   if (property === "angle" && isFrameLikeElement(element)) {
     return false;
   }
+  if (property === "roundness" && isFrameLikeElement(element)) {
+    return false;
+  }
   return true;
 };
 

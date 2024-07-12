@@ -1,31 +1,32 @@
-import { useEffect, useMemo, useState, memo } from "react";
-import { getCommonBounds } from "../../element/bounds";
-import type { NonDeletedExcalidrawElement } from "../../element/types";
-import { t } from "../../i18n";
 import type { AppState, ExcalidrawProps } from "../../types";
-import { CloseIcon } from "../icons";
-import { Island } from "../Island";
-import { throttle } from "lodash";
-import Dimension from "./Dimension";
-import Angle from "./Angle";
-
-import FontSize from "./FontSize";
-import MultiDimension from "./MultiDimension";
 import {
   elementsAreInSameGroup,
   getElementsInGroup,
   getSelectedGroupIds,
   isInGroup,
 } from "../../groups";
-import MultiAngle from "./MultiAngle";
-import MultiFontSize from "./MultiFontSize";
-import Position from "./Position";
-import MultiPosition from "./MultiPosition";
-import Collapsible from "./Collapsible";
-import type Scene from "../../scene/Scene";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useExcalidrawAppState, useExcalidrawSetAppState } from "../App";
+
+import Angle from "./Angle";
 import type { AtomicUnit } from "./utils";
+import { CloseIcon } from "../icons";
+import Collapsible from "./Collapsible";
+import Dimension from "./Dimension";
+import FontSize from "./FontSize";
+import { Island } from "../Island";
+import MultiAngle from "./MultiAngle";
+import MultiDimension from "./MultiDimension";
+import MultiFontSize from "./MultiFontSize";
+import MultiPosition from "./MultiPosition";
+import type { NonDeletedExcalidrawElement } from "../../element/types";
+import Position from "./Position";
+import Round from "./Round";
 import { STATS_PANELS } from "../../constants";
+import type Scene from "../../scene/Scene";
+import { getCommonBounds } from "../../element/bounds";
+import { t } from "../../i18n";
+import { throttle } from "lodash";
 
 interface StatsProps {
   scene: Scene;
@@ -93,7 +94,7 @@ export const StatsInner = memo(
             height: Math.round(boundingBox[3]) - Math.round(boundingBox[1]),
           });
         }, STATS_TIMEOUT),
-      [],
+      []
     );
 
     useEffect(() => {
@@ -102,7 +103,7 @@ export const StatsInner = memo(
 
     useEffect(
       () => () => throttledSetSceneDimension.cancel(),
-      [throttledSetSceneDimension],
+      [throttledSetSceneDimension]
     );
 
     const atomicUnits = useMemo(() => {
@@ -128,7 +129,10 @@ export const StatsInner = memo(
         <Island padding={3}>
           <div className="title">
             <h2>{t("stats.title")}</h2>
-            <div className="close" onClick={onClose}>
+            <div
+              className="close"
+              onClick={onClose}
+            >
               {CloseIcon}
             </div>
           </div>
@@ -226,6 +230,10 @@ export const StatsInner = memo(
                         element={singleElement}
                         elementsMap={elementsMap}
                       />
+                      <Round
+                        element={singleElement}
+                        elementsMap={elementsMap}
+                      />
                       {singleElement.type === "text" && (
                         <FontSize
                           element={singleElement}
@@ -302,5 +310,5 @@ export const StatsInner = memo(
       prev.selectedElements === next.selectedElements &&
       prev.appState.stats.panels === next.appState.stats.panels
     );
-  },
+  }
 );
