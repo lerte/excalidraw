@@ -1,11 +1,11 @@
 import type { ExcalidrawElement } from "./types";
-import Scene from "../scene/Scene";
-import { getSizeFromPoints } from "../points";
-import { randomInteger } from "../random";
-import type { Point } from "../types";
-import { getUpdatedTimestamp } from "../utils";
 import type { Mutable } from "../utility-types";
+import type { Point } from "../types";
+import Scene from "../scene/Scene";
 import { ShapeCache } from "../scene/ShapeCache";
+import { getSizeFromPoints } from "../points";
+import { getUpdatedTimestamp } from "../utils";
+import { randomInteger } from "../random";
 
 export type ElementUpdate<TElement extends ExcalidrawElement> = Omit<
   Partial<TElement>,
@@ -19,7 +19,7 @@ export type ElementUpdate<TElement extends ExcalidrawElement> = Omit<
 export const mutateElement = <TElement extends Mutable<ExcalidrawElement>>(
   element: TElement,
   updates: ElementUpdate<TElement>,
-  informMutation = true,
+  informMutation = true
 ): TElement => {
   let didChange = false;
 
@@ -87,6 +87,7 @@ export const mutateElement = <TElement extends Mutable<ExcalidrawElement>>(
   if (
     typeof updates.height !== "undefined" ||
     typeof updates.width !== "undefined" ||
+    typeof updates.roundness !== "undefined" ||
     typeof fileId != "undefined" ||
     typeof points !== "undefined"
   ) {
@@ -108,7 +109,7 @@ export const newElementWith = <TElement extends ExcalidrawElement>(
   element: TElement,
   updates: ElementUpdate<TElement>,
   /** pass `true` to always regenerate */
-  force = false,
+  force = false
 ): TElement => {
   let didChange = false;
   for (const key in updates) {
@@ -145,7 +146,7 @@ export const newElementWith = <TElement extends ExcalidrawElement>(
  */
 export const bumpVersion = <T extends Mutable<ExcalidrawElement>>(
   element: T,
-  version?: ExcalidrawElement["version"],
+  version?: ExcalidrawElement["version"]
 ) => {
   element.version = (version ?? element.version) + 1;
   element.versionNonce = randomInteger();
