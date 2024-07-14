@@ -384,7 +384,6 @@ import { AnimationFrameHandler } from "../animation-frame-handler";
 import BraveMeasureTextError from "./BraveMeasureTextError";
 import { COLOR_PALETTE } from "../colors";
 import type { ContextMenuItems } from "./ContextMenu";
-import { DEFAULT_FONT_SIZE } from "../constants";
 import type { EXPORT_IMAGE_TYPES } from "../constants";
 import { EditorLocalStorage } from "../data/EditorLocalStorage";
 import { ElementCanvasButton } from "./MagicButton";
@@ -3089,9 +3088,7 @@ class App extends React.Component<AppProps, AppState> {
 
           try {
             const { elements: skeletonElements, files } =
-              await api.parseMermaidToExcalidraw(data.text, {
-                fontSize: DEFAULT_FONT_SIZE,
-              });
+              await api.parseMermaidToExcalidraw(data.text);
 
             const elements = convertToExcalidrawElements(skeletonElements, {
               regenerateIds: true,
